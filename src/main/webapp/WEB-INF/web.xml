@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee 
+         https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+         version="5.0">
+
+    <display-name>Test Bench Monitoring System</display-name>
+
+    <servlet><servlet-name>UserLoginServlet</servlet-name>
+        <servlet-class>com.testbench.servlet.UserLoginServlet</servlet-class></servlet>
+    <servlet-mapping><servlet-name>UserLoginServlet</servlet-name>
+        <url-pattern>/userLogin</url-pattern></servlet-mapping>
+
+    <servlet><servlet-name>UserDashboardServlet</servlet-name>
+        <servlet-class>com.testbench.servlet.UserDashboardServlet</servlet-class></servlet>
+    <servlet-mapping><servlet-name>UserDashboardServlet</servlet-name>
+        <url-pattern>/userDashboard</url-pattern></servlet-mapping>
+
+    <servlet><servlet-name>ControlServlet</servlet-name>
+        <servlet-class>com.testbench.servlet.ControlServlet</servlet-class></servlet>
+    <servlet-mapping><servlet-name>ControlServlet</servlet-name>
+        <url-pattern>/control</url-pattern></servlet-mapping>
+
+    <servlet><servlet-name>ExportServlet</servlet-name>
+        <servlet-class>com.testbench.servlet.ExportServlet</servlet-class></servlet>
+    <servlet-mapping><servlet-name>ExportServlet</servlet-name>
+        <url-pattern>/export</url-pattern></servlet-mapping>
+
+    <servlet><servlet-name>NotificationServlet</servlet-name>
+        <servlet-class>com.testbench.servlet.NotificationServlet</servlet-class></servlet>
+    <servlet-mapping><servlet-name>NotificationServlet</servlet-name>
+        <url-pattern>/notifications</url-pattern></servlet-mapping>
+
+    <servlet><servlet-name>SensorAPIServlet</servlet-name>
+        <servlet-class>com.testbench.servlet.SensorAPIServlet</servlet-class></servlet>
+    <servlet-mapping><servlet-name>SensorAPIServlet</servlet-name>
+        <url-pattern>/api/sensor</url-pattern></servlet-mapping>
+
+    <servlet><servlet-name>AdminLoginServlet</servlet-name>
+        <servlet-class>com.testbench.servlet.AdminLoginServlet</servlet-class></servlet>
+    <servlet-mapping><servlet-name>AdminLoginServlet</servlet-name>
+        <url-pattern>/adminLogin</url-pattern></servlet-mapping>
+
+    <servlet><servlet-name>AdminDashboardServlet</servlet-name>
+        <servlet-class>com.testbench.servlet.AdminDashboardServlet</servlet-class></servlet>
+    <servlet-mapping><servlet-name>AdminDashboardServlet</servlet-name>
+        <url-pattern>/adminDashboard</url-pattern></servlet-mapping>
+
+    <servlet><servlet-name>UserManagementServlet</servlet-name>
+        <servlet-class>com.testbench.servlet.UserManagementServlet</servlet-class></servlet>
+    <servlet-mapping><servlet-name>UserManagementServlet</servlet-name>
+        <url-pattern>/manageUsers</url-pattern></servlet-mapping>
+
+    <servlet><servlet-name>AASManagementServlet</servlet-name>
+        <servlet-class>com.testbench.servlet.AASManagementServlet</servlet-class></servlet>
+    <servlet-mapping><servlet-name>AASManagementServlet</servlet-name>
+        <url-pattern>/manageAAS</url-pattern></servlet-mapping>
+
+    <servlet><servlet-name>SystemSettingsServlet</servlet-name>
+        <servlet-class>com.testbench.servlet.SystemSettingsServlet</servlet-class></servlet>
+    <servlet-mapping><servlet-name>SystemSettingsServlet</servlet-name>
+        <url-pattern>/systemSettings</url-pattern></servlet-mapping>
+
+    <servlet><servlet-name>DataManagementServlet</servlet-name>
+        <servlet-class>com.testbench.servlet.DataManagementServlet</servlet-class></servlet>
+    <servlet-mapping><servlet-name>DataManagementServlet</servlet-name>
+        <url-pattern>/dataManagement</url-pattern></servlet-mapping>
+
+    <servlet><servlet-name>LogoutServlet</servlet-name>
+        <servlet-class>com.testbench.servlet.LogoutServlet</servlet-class></servlet>
+    <servlet-mapping><servlet-name>LogoutServlet</servlet-name>
+        <url-pattern>/logout</url-pattern></servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>user/login.jsp</welcome-file>
+    </welcome-file-list>
+    <session-config><session-timeout>30</session-timeout></session-config>
+    
+    <!-- ADD this to web.xml -->
+<servlet>
+  <servlet-name>AdminMonitoringServlet</servlet-name>
+  <servlet-class>com.testbench.servlet.AdminDashboardServlet</servlet-class>
+</servlet>
+<servlet-mapping>
+  <servlet-name>AdminMonitoringServlet</servlet-name>
+  <url-pattern>/adminMonitoring</url-pattern>
+</servlet-mapping>
+
+<servlet>
+  <servlet-name>ReportsServlet</servlet-name>
+  <servlet-class>com.testbench.servlet.UserDashboardServlet</servlet-class>
+</servlet>
+<servlet-mapping>
+  <servlet-name>ReportsServlet</servlet-name>
+  <url-pattern>/reports</url-pattern>
+</servlet-mapping>
+</web-app>

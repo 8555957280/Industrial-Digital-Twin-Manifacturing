@@ -1,0 +1,164 @@
+-- ============================================================
+--  TEST BENCH MONITORING SYSTEM — DATABASE SETUP
+--  Run this file on any new machine in MySQL Workbench
+-- ============================================================
+
+CREATE DATABASE IF NOT EXISTS testbench_db;
+USE testbench_db;
+
+-- ─── USERS TABLE ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS users (
+    id            INT AUTO_INCREMENT PRIMARY KEY,
+    name          VARCHAR(100)  NOT NULL,
+    email         VARCHAR(150)  NOT NULL UNIQUE,
+    password      VARCHAR(255)  NOT NULL,
+    role          VARCHAR(20)   DEFAULT 'user',
+    status        VARCHAR(20)   DEFAULT 'active',
+    profile_image VARCHAR(500),
+    created_at    TIMESTAMP     DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ─── ADMINS TABLE ────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS admins (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    name       VARCHAR(100) NOT NULL,
+    email      VARCHAR(150) NOT NULL UNIQUE,
+    password   VARCHAR(255) NOT NULL,
+    status     VARCHAR(20)  DEFAULT 'active',
+    created_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ─── SENSOR DATA TABLE ───────────────────────────────────────
+CREATE TABLE IF NOT EXISTS sensor_data (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    temperature DECIMAL(6,2),
+    pressure    DECIMAL(8,2),
+    flow_rate   DECIMAL(8,2),
+    level       DECIMAL(6,2),
+    device_id   VARCHAR(50)  DEFAULT 'RPI-001',
+    recorded_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ─── ALERTS TABLE ────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS alerts (
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    alert_type      VARCHAR(50),
+    message         TEXT,
+    variable_name   VARCHAR(50),
+    variable_value  DECIMAL(10,2),
+    threshold_value DECIMAL(10,2),
+    severity        VARCHAR(20)  DEFAULT 'warning',
+    is_read         BOOLEAN      DEFAULT FALSE,
+    created_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ─── CONTROL SETTINGS TABLE ──────────────────────────────────
+CREATE TABLE IF NOT EXISTS control_settings (
+    id               INT AUTO_INCREMENT PRIMARY KEY,
+    variable_name    VARCHAR(50) NOT NULL,
+    min_threshold    DECIMAL(10,2),
+    max_threshold    DECIMAL(10,2),
+    current_setpoint DECIMAL(10,2),
+    is_active        BOOLEAN     DEFAULT TRUE,
+    updated_at       TIMESTAMP   DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- ─── AAS SETTINGS TABLE ──────────────────────────────────────
+CREATE TABLE IF NOT EXISTS aas_settings (
+    id                 INT AUTO_INCREMENT PRIMARY KEY,
+    aas_name           VARCHAR(100),
+    aas_type           VARCHAR(50),
+    variable_controlled VARCHAR(50),
+    passive_value      DECIMAL(10,2),
+    reactive_value     DECIMAL(10,2),
+    status             VARCHAR(20) DEFAULT 'active',
+    updated_at         TIMESTAMP   DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- ─── SYSTEM SETTINGS TABLE ───────────────────────────────────
+CREATE TABLE IF NOT EXISTS system_settings (
+    id            INT AUTO_INCREMENT PRIMARY KEY,
+    setting_key   VARCHAR(100) UNIQUE,
+    setting_value VARCHAR(500),
+    updated_at    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- ============================================================
+--  DEFAULT CONTROL SETTINGS (No passwords here — safe to share)
+-- ============================================================
+
+INSERT INTO control_settings (variable_name, min_threshold, max_threshold, current_setpoint) VALUES
+('temperature', 10.00, 85.00, 25.00),
+('pressure',    1.00,  10.00,  5.00),
+('flow_rate',   0.50,  50.00, 20.00),
+('level',       5.00,  95.00, 60.00);
+
+-- ─── DEFAULT AAS SETTINGS ────────────────────────────────────
+INSERT INTO aas_settings (aas_name, aas_type, variable_controlled, passive_value, reactive_value) VALUES
+('AAS-TEMP-01',  'Reactive', 'temperature', 25.00, 30.00),
+('AAS-PRES-01',  'Passive',  'pressure',     5.00,  7.50),
+('AAS-FLOW-01',  'Reactive', 'flow_rate',   20.00, 25.00),
+('AAS-LEVEL-01', 'Passive',  'level',       60.00, 80.00);
+
+-- ─── DEFAULT SYSTEM SETTINGS ─────────────────────────────────
+INSERT INTO system_settings (setting_key, setting_value) VALUES
+('sampling_interval',   '5'),
+('data_retention_days', '90'),
+('alert_email',         'admin@testbench.com'),
+('system_version',      '1.0.0'),
+('backup_enabled',      'true');
+
+-- ─── SAMPLE SENSOR DATA (500 rows) ───────────────────────────
+DELIMITER //
+CREATE PROCEDURE GenerateSampleData()
+BEGIN
+    DECLARE i INT DEFAULT 0;
+    WHILE i < 500 DO
+        INSERT INTO sensor_data (temperature, pressure, flow_rate, level, recorded_at)
+        VALUES (
+            ROUND(20 + (RAND() * 30), 2),
+            ROUND(3  + (RAND() * 5),  2),
+            ROUND(10 + (RAND() * 25), 2),
+            ROUND(40 + (RAND() * 40), 2),
+            DATE_SUB(NOW(), INTERVAL (500 - i) * 20 MINUTE)
+        );
+        SET i = i + 1;
+    END WHILE;
+END //
+DELIMITER ;
+CALL GenerateSampleData();
+DROP PROCEDURE IF EXISTS GenerateSampleData;
+
+-- ─── SAMPLE ALERTS ───────────────────────────────────────────
+INSERT INTO alerts (alert_type, message, variable_name, variable_value, threshold_value, severity) VALUES
+('threshold_exceeded', 'Temperature exceeded maximum limit', 'temperature', 87.50, 85.00, 'critical'),
+('threshold_exceeded', 'Pressure above warning level',       'pressure',     9.20,  8.00, 'warning'),
+('system_info',        'System started successfully',         NULL,           NULL,  NULL, 'info');
+
+
+-- ============================================================
+--  HOW TO CREATE YOUR OWN ADMIN AND USER ACCOUNTS
+--  Run the Java PasswordUtil to hash your password first.
+--  
+--  STEP 1: Open any online SHA-256 generator:
+--          https://emn178.github.io/online-tools/sha256.html
+--
+--  STEP 2: Type your password (example: MyAdmin@2026)
+--          Copy the SHA-256 hash it gives you
+--
+--  STEP 3: Run the INSERT below replacing the hash and details:
+-- ============================================================
+
+INSERT INTO admins (name, email, password) VALUES
+('admin', 'admin@gmail.com', '$2a$10$tn6adu5gJvZaIYahM0d8BuxLXHIsx8giP84KQ7VdIMY96M/Nyldt6');
+
+-- INSERT INTO users (name, email, password, role) VALUES
+-- ('User Name', 'user@domain.com', 'PASTE_SHA256_HASH_HERE', 'user');
+
+-- ============================================================
+--  VERIFY SETUP — Run these to confirm everything is created:
+-- ============================================================
+-- SHOW TABLES;
+-- SELECT COUNT(*) FROM sensor_data;
+-- SELECT * FROM control_settings;
+-- SELECT * FROM aas_settings;
